@@ -134,6 +134,81 @@ mod_regresion_server <- function(id) {
       }
     }, digits = 4)
 
+    # Validación de datos
+    output$validacion <- renderPrint({
+      datos <- datos_react()
+      if (!is.null(datos$error)) {
+        cat(datos$error)
+      } else {
+        cat("Datos validados correctamente.\n")
+        cat("Número de observaciones (n):", datos$n, "\n")
+        cat("Variable X:", datos$x_name, "\n")
+        cat("Variable Y:", datos$y_name, "\n")
+      }
+    })
+
+    # Gráfica de datos validados + línea regresión
+    output$grafico <- renderPlot({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        # Márgenes para que se vean bien las etiquetas
+        par(mar = c(5, 4, 4, 2) + 0.1)
+
+        # Gráfico de dispersión (puntos)
+        plot(datos$x, datos$y,
+             xlab = datos$x_name,
+             ylab = datos$y_name,
+             main = paste("Regresión Lineal:", datos$y_name, "vs", datos$x_name),
+             pch = 19,       # Forma del punto (círculo sólido)
+             col = "blue",   # Color de los puntos
+             frame.plot = TRUE)
+
+        # Agregar la línea de regresión
+        abline(datos$modelo, col = "red", lwd = 2)
+
+        # Agregar leyenda simple
+        legend("topleft",
+               legend = c("Datos observados", "Recta de regresión"),
+               col = c("blue", "red"),
+               pch = c(19, NA),
+               lty = c(NA, 1),
+               lwd = c(NA, 2),
+               bty = "n") # Sin caja alrededor de la leyenda
+
+        # Agregar cuadrícula para mejor lectura
+        grid()
+      }
+    })
+
+    # Estadísticas descriptivas
+    output$estadisticas <- renderPrint({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        cat("Estadísticas descriptivas:\n")
+        cat("=========================\n\n")
+
+        # Estadísticas para X
+        cat(sprintf("Variable %s (X):\n", datos$x_name))
+        cat("-------------------------\n")
+        cat(sprintf("Media (x̄) = %.6f\n", mean(datos$x)))
+        cat(sprintf("Mínimo   = %.6f\n", min(datos$x)))
+        cat(sprintf("Máximo   = %.6f\n", max(datos$x)))
+        cat(sprintf("Suma (ΣX) = %.6f\n", sum(datos$x)))
+        cat(sprintf("ΣX²      = %.6f\n\n", sum(datos$x^2)))
+
+        # Estadísticas para Y
+        cat(sprintf("Variable %s (Y):\n", datos$y_name))
+        cat("-------------------------\n")
+        cat(sprintf("Media (ȳ) = %.6f\n", mean(datos$y)))
+        cat(sprintf("Mínimo    = %.6f\n", min(datos$y)))
+        cat(sprintf("Máximo    = %.6f\n", max(datos$y)))
+        cat(sprintf("Suma (ΣY) = %.6f\n", sum(datos$y)))
+        cat(sprintf("ΣY²      = %.6f\n\n", sum(datos$y^2)))
+
+        # Suma de productos
+        cat("Suma de productos (ΣXY) = ", sum(datos$x * datos$y), "\n")
+      }
+    })
 # ui para el módulo de regresión
 
 #' @rdname mod_regresion_ui
