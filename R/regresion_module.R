@@ -101,6 +101,39 @@ mod_regresion_server <- function(id) {
       # Obtener ANOVA
       anova_res <- anova(modelo)
 
+      # Calcular correlación
+      correlacion <- cor(x, y)
+      
+      # Obtener coeficientes
+      coefs <- coef(modelo)
+      
+      # Preparar resultados
+      list(
+        x = x,
+        y = y,
+        x_name = ifelse(input$var_x == "", "X", input$var_x),
+        y_name = ifelse(input$var_y == "", "Y", input$var_y),
+        n = length(x),
+        modelo = modelo,
+        resumen = resumen,
+        anova = anova_res,
+        coefs = coefs,
+        correlacion = correlacion
+      )
+    })
+    
+    # Mostrar tabla de datos
+    output$tabla_datos <- renderTable({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        data.frame(
+          Observación = 1:datos$n,
+          X = datos$x,
+          Y = datos$y
+        )
+      }
+    }, digits = 4)
+
 # ui para el módulo de regresión
 
 #' @rdname mod_regresion_ui
