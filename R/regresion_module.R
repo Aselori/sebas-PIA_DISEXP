@@ -63,6 +63,25 @@ mod_regresion_ui <- function(id) {
   )
 }
 
+#' @rdname mod_regresion_ui
+mod_regresion_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    
+    # Procesar datos de entrada
+    datos_react <- eventReactive(input$btn_calcular, {
+      req(input$datos_x, input$datos_y)
+      
+      # Convertir texto a vector numérico
+      x <- as.numeric(unlist(strsplit(gsub(",", " ", input$datos_x), "\\s+")))
+      y <- as.numeric(unlist(strsplit(gsub(",", " ", input$datos_y), "\\s+")))
+      
+      # Validar longitudes
+      if (length(x) != length(y)) {
+        return(list(error = "Error: Las variables deben tener la misma cantidad de observaciones."))
+      }
+
+
+
 # ui para el módulo de regresión
 
 #' @rdname mod_regresion_ui
