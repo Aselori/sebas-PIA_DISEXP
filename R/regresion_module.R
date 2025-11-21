@@ -80,7 +80,26 @@ mod_regresion_server <- function(id) {
         return(list(error = "Error: Las variables deben tener la misma cantidad de observaciones."))
       }
 
-
+      # Eliminar NA's
+      valid <- !is.na(x) & !is.na(y)
+      x <- x[valid]
+      y <- y[valid]
+      
+      if (length(x) < 2) {
+        return(list(error = "Error: Se requieren al menos 2 observaciones válidas."))
+      }
+      
+      # Crear data.frame con los datos
+      datos_df <- data.frame(x = x, y = y)
+      
+      # Ajustar modelo de regresión lineal
+      modelo <- lm(y ~ x, data = datos_df)
+      
+      # Obtener resumen del modelo
+      resumen <- summary(modelo)
+      
+      # Obtener ANOVA
+      anova_res <- anova(modelo)
 
 # ui para el módulo de regresión
 
