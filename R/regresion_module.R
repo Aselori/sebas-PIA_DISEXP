@@ -209,8 +209,86 @@ mod_regresion_server <- function(id) {
         cat("Suma de productos (ΣXY) = ", sum(datos$x * datos$y), "\n")
       }
     })
-# ui para el módulo de regresión
 
-#' @rdname mod_regresion_ui
+    # Coeficientes de correlación
+    output$correlacion <- renderPrint({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        r <- datos$correlacion
+        r2 <- r^2
 
-# conexión con el server y funcionalidad del módulo de regresión
+        cat("Coeficiente de correlación de Pearson (r):\n")
+        cat("----------------------------------------\n")
+        cat(sprintf("r  = %.6f\n", r))
+        cat(sprintf("r² = %.6f  (%.2f%% de la variabilidad)\n\n", r2, r2 * 100))
+
+        cat("Interpretación de la correlación:\n")
+        cat("--------------------------------\n")
+        if (abs(r) >= 0.9) {
+          cat("Correlación muy fuerte ")
+        } else if (abs(r) >= 0.7) {
+          cat("Correlación fuerte ")
+        } else if (abs(r) >= 0.5) {
+          cat("Correlación moderada ")
+        } else if (abs(r) >= 0.3) {
+          cat("Correlación débil ")
+        } else {
+          cat("Correlación muy débil o nula ")
+        }
+
+        cat(ifelse(r > 0, "positiva", ifelse(r < 0, "negativa", "")))
+
+        cat("\n\nEl coeficiente de determinación (r²) indica que el ",
+            sprintf("%.2f%% de la variabilidad en %s ", r2 * 100, datos$y_name),
+            sprintf("es explicado por su relación lineal con %s.", datos$x_name)
+        )
+      }
+    })
+
+     # Ecuación de regresión
+    output$ecuacion <- renderPrint({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        b0 <- datos$coefs[1]
+        b1 <- datos$coefs[2]
+
+        cat("Ecuación de regresión lineal:\n")
+        cat("============================\n\n")
+
+        # Mostrar ecuación con formato
+        cat(sprintf("ŷ = %.6f %s %.6f·%s\n\n",
+                    b0,
+                    ifelse(b1 >= 0, "+", "-"),
+                    abs(b1),
+                    datos$x_name))
+
+        cat("Donde:\n")
+        cat("------\n")
+        cat(sprintf("• ŷ = valor predicho de %s\n", datos$y_name))
+        cat(sprintf("• %s = %s\n",
+                    datos$x_name,
+                    ifelse(input$var_x == "", "variable independiente", input$var_x)))
+        cat(sprintf("• %.6f = ordenada al origen (valor de Y cuando X=0)\n", b0))
+        cat(sprintf("• %.6f = pendiente de la recta\n\n", b1))
+
+        # Interpretación de la pendiente
+        cat("Interpretación de la pendiente:\n")
+        cat("------------------------------\n")
+        cat(sprintf("Por cada unidad que aumenta %s, se espera que %s %s en promedio %.6f unidades.\n",
+                    datos$x_name,
+                    datos$y_name,
+                    ifelse(b1 > 0, "aumente", "disminuya"),
+                    abs(b1)))
+
+        # Calidad del ajuste
+        r2 <- datos$resumen$r.squared
+        cat("\nBondad del ajuste:\n")
+        cat("-----------------\n")
+        cat(sprintf("R² ajustado = %.6f\n", datos$resumen$adj.r.squared))
+        cat(sprintf("Error estándar de la estimación = %.6f\n",
+                    summary(datos$modelo)$sigma))
+      }
+    })
+
+  })
+}
