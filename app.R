@@ -32,16 +32,16 @@ ui <- dashboardPage(
       #Pestaña de regresión lineal
       tabItem(
         tabName = "regresion",
-        # mod_regresion_ui("regresion_1")
+        mod_regresion_ui("regresion_1")
       )
 
-      
+
     )
   )
 )
 
 server <- function(input, output, session) {
-
+  mod_regresion_server("regresion_1")
 }
 
 # función para ejecutar la app
