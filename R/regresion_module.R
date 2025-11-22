@@ -289,11 +289,7 @@ mod_regresion_server <- function(id) {
                     summary(datos$modelo)$sigma))
       }
     })
-
-  })
-}
-
-output$anova <- renderPrint({
+    output$anova <- renderPrint({
       datos <- datos_react()
       if (is.null(datos$error)) {
         # Mostrar tabla ANOVA
@@ -360,3 +356,6 @@ output$anova <- renderPrint({
     })
   })
 }
+  })
+}
+
