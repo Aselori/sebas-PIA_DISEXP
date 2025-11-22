@@ -292,3 +292,71 @@ mod_regresion_server <- function(id) {
 
   })
 }
+
+output$anova <- renderPrint({
+      datos <- datos_react()
+      if (is.null(datos$error)) {
+        # Mostrar tabla ANOVA
+        cat("Análisis de Varianza (ANOVA)\n")
+        cat("============================\n\n")
+        
+        # Crear tabla ANOVA manualmente para mejor formato
+        anova_df <- data.frame(
+          Fuente = c("Regresión", "Error", "Total"),
+          SC = c(datos$anova$`Sum Sq`[1], 
+                 datos$anova$`Sum Sq`[2], 
+                 sum(datos$anova$`Sum Sq`)),
+          gl = c(datos$anova$Df[1], 
+                 datos$anova$Df[2], 
+                 sum(datos$anova$Df)),
+          MC = c(datos$anova$`Mean Sq`[1], 
+                 datos$anova$`Mean Sq`[2],
+                 NA),
+          F = c(datos$anova$`F value`[1], NA, NA),
+          p_valor = c(datos$anova$`Pr(>F)`[1], NA, NA)
+        )
+        
+        # Función auxiliar para formatear valores numéricos
+        format_num <- function(x, width, digits = 4) {
+          if (is.na(x)) {
+            return(sprintf(paste0("%", width, "s"), "-"))
+          } else {
+            return(sprintf(paste0("%", width, ".", digits, "f"), x))
+          }
+        }
+        
+        # Encabezado de la tabla
+        cat("Fuente     |      SC   | gl |      MC     |    F    |   p-valor\n")
+        cat("----------------------------------------------------------\n")
+        
+        # Contenido de la tabla
+        for (i in 1:nrow(anova_df)) {
+          cat(sprintf("%-10s|%s |%3d |%11s |%8s |%s\n",
+                      anova_df$Fuente[i],
+                      format_num(anova_df$SC[i], 10),
+                      anova_df$gl[i],
+                      ifelse(is.na(anova_df$MC[i]), "           ", format_num(anova_df$MC[i], 11)),
+                      ifelse(is.na(anova_df$F[i]), "       ", format_num(anova_df$F[i], 8)),
+                      ifelse(is.na(anova_df$p_valor[i]), "       ", 
+                             ifelse(anova_df$p_valor[i] < 0.001, "< 0.001", 
+                                    format_num(anova_df$p_valor[i], 8, 4)))
+          ))
+        }
+        
+        # Interpretación
+        cat("\nHipótesis nula (H₀): El modelo no es significativo (β₁ = 0)\n")
+        cat(sprintf("Hipótesis alternativa (H₁): El modelo es significativo (β₁ ≠ 0)\n\n"))
+        
+        if (datos$anova$`Pr(>F)`[1] < 0.05) {
+          cat("Conclusión: Rechazamos H₀ (p < 0.05). \n")
+          cat("  → Existe evidencia estadísticamente significativa de que el modelo es útil \n")
+          cat("    para predecir", datos$y_name, "a partir de", datos$x_name, "\n")
+        } else {
+          cat("Conclusión: No hay evidencia suficiente para rechazar H₀ (p ≥ 0.05). \n")
+          cat("  → No hay evidencia de que el modelo sea útil para predecir", 
+              datos$y_name, "a partir de", datos$x_name, "\n")
+        }
+      }
+    })
+  })
+}
