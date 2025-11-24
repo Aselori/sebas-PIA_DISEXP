@@ -12,8 +12,7 @@ ui <- dashboardPage(
     sidebarMenu(
       id = "tabs",
       menuItem("Inicio", tabName = "home", icon = icon("home")),
-      menuItem("Regresión lineal", tabName = "regresion", icon = icon("chart-line")),
-      menuItem("Otros métodos", tabName = "otros_metodos", icon = icon("calculator"))
+      menuItem("Regresión lineal", tabName = "regresion", icon = icon("chart-line"))
     )
   ),
   dashboardBody(
@@ -33,21 +32,16 @@ ui <- dashboardPage(
       #Pestaña de regresión lineal
       tabItem(
         tabName = "regresion",
-        # mod_regresion_ui("regresion_1")
-      ),
-
-      #pestaña para próximos métodos
-      tabItem(
-        tabName = "otros_metodos",
-        h3("Próximamente"),
-        p("Se agregarán más métodos estadísticos a futuro")
+        mod_regresion_ui("regresion_1")
       )
+
+
     )
   )
 )
 
 server <- function(input, output, session) {
-
+  mod_regresion_server("regresion_1")
 }
 
 # función para ejecutar la app
