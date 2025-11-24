@@ -214,14 +214,29 @@ mod_regresion_server <- function(id) {
     output$correlacion <- renderPrint({
       datos <- datos_react()
       if (is.null(datos$error)) {
+        # Realizar prueba de correlación
+        test_cor <- cor.test(datos$x, datos$y)
         r <- datos$correlacion
         r2 <- r^2
-
-        cat("Coeficiente de correlación de Pearson (r):\n")
-        cat("----------------------------------------\n")
-        cat(sprintf("r  = %.6f\n", r))
-        cat(sprintf("r² = %.6f  (%.2f%% de la variabilidad)\n\n", r2, r2 * 100))
-
+        p_valor <- test_cor$p.value
+        conf_int <- test_cor$conf.int
+        
+        cat("Prueba de Correlación de Pearson\n")
+        cat("================================\n\n")
+        
+        cat("Hipótesis:\n")
+        cat("  H₀: La correlación entre las variables es igual a 0\n")
+        cat(sprintf("  H₁: La correlación entre las variables no es igual a 0\n\n"))
+        
+        cat("Resultados:\n")
+        cat("----------\n")
+        cat(sprintf("Coeficiente de correlación (r) = %.4f\n", r))
+        cat(sprintf("Coeficiente de determinación (r²) = %.4f (%.1f%% de la variabilidad)\n", r2, r2 * 100))
+        cat(sprintf("Estadístico t = %.4f, gl = %d\n", test_cor$statistic, test_cor$parameter))
+        cat(sprintf("Valor p = %.4f\n", p_valor))
+        cat(sprintf("Intervalo de confianza al 95%% = [%.4f, %.4f]\n\n", 
+                   conf_int[1], conf_int[2]))
+        
         cat("Interpretación de la correlación:\n")
         cat("--------------------------------\n")
         if (abs(r) >= 0.9) {
